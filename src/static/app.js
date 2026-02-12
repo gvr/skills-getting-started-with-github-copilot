@@ -14,22 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesList.innerHTML = "";
 
       // Populate activities list
+      displayActivities(activities);
+
+      // Add option to select dropdown
       Object.entries(activities).forEach(([name, details]) => {
-        const activityCard = document.createElement("div");
-        activityCard.className = "activity-card";
-
-        const spotsLeft = details.max_participants - details.participants.length;
-
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
-
-        activitiesList.appendChild(activityCard);
-
-        // Add option to select dropdown
         const option = document.createElement("option");
         option.value = name;
         option.textContent = name;
@@ -39,6 +27,32 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
       console.error("Error fetching activities:", error);
     }
+  }
+
+  // Function to display activities
+  function displayActivities(activitiesData) {
+    const activitiesList = document.getElementById("activities-list");
+    activitiesList.innerHTML = "";
+
+    Object.entries(activitiesData).forEach(([name, details]) => {
+      const participantsList = details.participants
+        .map(participant => `<li>${participant}</li>`)
+        .join("");
+      
+      const card = document.createElement("div");
+      card.className = "activity-card";
+      card.innerHTML = `
+        <h4>${name}</h4>
+        <p>${details.description}</p>
+        <p><strong>Schedule:</strong> ${details.schedule}</p>
+        <p><strong>Capacity:</strong> ${details.participants.length}/${details.max_participants}</p>
+        <div class="participants">
+          <h5>Signed Up Students</h5>
+          <ul>${participantsList || "<li style='color: #999;'>No participants yet</li>"}</ul>
+        </div>
+      `;
+      activitiesList.appendChild(card);
+    });
   }
 
   // Handle form submission
